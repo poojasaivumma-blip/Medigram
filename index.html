@@ -1,0 +1,1804 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>MediGram - Rural Healthcare</title>
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f5f8fb;
+            color: #172033;
+        }
+        /* ================= HEADER ================= */
+        header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e5eaf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+nav {
+            display: flex;
+            gap: 25px;
+        }
+        nav button {
+            border: none;
+            background: none;
+            color: #687386;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        nav button:hover {
+            color: #1976d2;
+        }
+        nav button.active {
+            color: #1976d2;
+            font-weight: bold;
+        }
+        .right-side {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        select {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        .login-btn {
+            border: none;
+            background: #1976d2;
+            color: white;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        /* ================= MAIN ================= */
+        main {
+            max-width: 1180px;
+            margin: auto;
+            padding: 45px 25px 70px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        /* ================= HOME ================= */
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 50px;
+            align-items: center;
+            padding: 40px 0;
+        }
+        .small-title {
+            color: #1976d2;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        h1 {
+            font-size: 48px;
+            line-height: 1.1;
+            margin: 15px 0;
+        }
+        .hero p {
+            color: #6b7485;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .primary-btn,
+        .secondary-btn {
+            padding: 12px 18px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .primary-btn {
+            border: none;
+            background: #1976d2;
+            color: white;
+        }
+        .secondary-btn {
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+        }
+        /* ================= MATCH CARD ================= */
+        .match-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(25,45,75,0.07);
+        }
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .match-header strong {
+            font-size: 17px;
+        }
+        .ai-badge {
+            background: #e9f8f0;
+            color: #16865b;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .match-card p {
+            color: #6b7485;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .village-match {
+            border: 1px solid #e5eaf0;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        .village-match-top {
+            display: flex;
+            justify-content: space-between;
+        }
+        .percentage {
+            color: #16865b;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .sub-text {
+            color: #777;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        /* ================= FLOW ================= */
+        .flow {
+            margin-top: 30px;
+        }
+        .flow h2 {
+            margin-bottom: 20px;
+        }
+        .flow-container {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: 12px;
+        }
+        .flow-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 15px;
+            padding: 20px 12px;
+            text-align: center;
+        }
+        .number {
+            width: 32px;
+            height: 32px;
+            background: #eaf3ff;
+            color: #1976d2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            font-weight: bold;
+        }
+        .flow-card h3 {
+            font-size: 14px;
+            margin: 10px 0 5px;
+        }
+        .flow-card p {
+            color: #777;
+            font-size: 12px;
+        }
+        /* ================= MAP ================= */
+        .map-header {
+            margin-bottom: 20px;
+        }
+        .map-header h2 {
+            margin: 8px 0;
+        }
+        .map-header p {
+            color: #777;
+            line-height: 1.6;
+        }
+        #map {
+            width: 100%;
+            height: 550px;
+            border-radius: 18px;
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+        .map-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 18px;
+        }
+        .map-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 14px;
+            padding: 18px;
+        }
+        .map-card strong {
+            display: block;
+            font-size: 25px;
+            margin-top: 6px;
+        }
+        .map-card small {
+            color: #777;
+        }
+        /* ================= DASHBOARD ================= */
+        .dashboard-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            margin-bottom: 25px;
+        }
+        .dashboard-heading h2 {
+            font-size: 30px;
+            margin: 7px 0;
+        }
+        .dashboard-heading p {
+            color: #777;
+        }
+        .verified {
+            background: #edf4ff;
+            color: #1769b0;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        /* ================= STATS ================= */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 15px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .stat-card small {
+            color: #777;
+        }
+        .stat-card strong {
+            display: block;
+            font-size: 28px;
+            margin-top: 8px;
+        }
+        /* ================= DASHBOARD GRID ================= */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.8fr;
+            gap: 18px;
+            margin-top: 20px;
+        }
+        .dashboard-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(25,45,75,0.05);
+        }
+        .dashboard-card h3 {
+            margin-bottom: 15px;
+        }
+        .village-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .village-name {
+            font-weight: bold;
+        }
+        .village-info {
+            color: #777;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .priority {
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .high {
+            background: #ffeded;
+            color: #c34a4a;
+        }
+        .medium {
+            background: #fff4e4;
+            color: #c97913;
+        }
+        .low {
+            background: #e9f8f0;
+            color: #16865b;
+        }
+        /* ================= ACTIONS ================= */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .action {
+            background: #fbfcfe;
+            border: 1px solid #e5eaf0;
+            border-radius: 11px;
+                        padding: 14px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .action:hover {
+            border-color: #1976d2;
+            background: #f5faff;
+        }
+        .action b {
+            font-size: 13px;
+        }
+        .action span {
+            display: block;
+            color: #777;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+        /* ================= CAMP ================= */
+        .camp-box {
+            border-left: 3px solid #1976d2;
+            padding-left: 12px;
+            margin-bottom: 18px;
+        }
+        .camp-box b {
+            font-size: 14px;
+        }
+        .camp-box p {
+            color: #777;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        /* ================= TOAST ================= */
+        #toast {
+            display: none;
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #172033;
+            color: white;
+            padding: 13px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            z-index: 2000;
+        }
+        /* ================= FOOTER ================= */
+        footer {
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 22px 6%;
+            color: #777;
+            font-size: 12px;
+        }
+        /* =====================================================
+           FINAL RESPONSIVE HEADER
+           ===================================================== */
+        .header-menu {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 28px;
+            flex: 1;
+        }
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: transparent;
+            color: #172033;
+            font-size: 30px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 6px;
+        }
+        .header-menu nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .header-menu .right-side {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        /* Keep the same logo image on every screen.
+           It only scales down when the screen becomes too narrow. */
+        .logo-image {
+            width: 320px;
+            height: 70px;
+            max-width: 55vw;
+            object-fit: contain;
+            object-position: left center;
+            display: block;
+            flex-shrink: 0;
+        }
+        @media (max-width: 1000px) {
+            header {
+                padding: 0 3%;
+            }
+            .logo-image {
+                width: 250px;
+                height: 65px;
+            }
+            .header-menu {
+                gap: 14px;
+            }
+            .header-menu nav {
+                gap: 12px;
+            }
+            .header-menu nav button {
+                font-size: 13px;
+            }
+        }
+        @media (max-width: 850px) {
+            header {
+                height: 68px;
+                padding: 0 16px;
+                position: sticky;
+            }
+            .logo-area {
+                height: 68px;
+                flex: 1;
+                min-width: 0;
+            }
+            .logo-image {
+                width: 230px;
+                height: 62px;
+                max-width: 70vw;
+            }
+            .menu-toggle {
+                display: block;
+                flex-shrink: 0;
+                margin-left: auto;
+                z-index: 1101;
+            }
+            .header-menu {
+                display: none;
+                position: absolute;
+                top: 68px;
+                left: 0;
+                width: 100%;
+                background: white;
+                border-top: 1px solid #e5eaf0;
+                border-bottom: 1px solid #e5eaf0;
+                box-shadow: 0 10px 25px rgba(25,45,75,0.12);
+                padding: 10px 16px 16px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                z-index: 1100;
+            }
+            .header-menu.mobile-open {
+                display: flex;
+            }
+            .header-menu nav {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                width: 100%;
+            }
+            .header-menu nav button {
+                width: 100%;
+                text-align: left;
+                padding: 14px 12px;
+                border-bottom: 1px solid #f0f2f5;
+                font-size: 16px;
+                color: #53657d;
+            }
+            .header-menu nav button:hover,
+            .header-menu nav button.active {
+                background: #f4f8fc;
+                color: #1976d2;
+            }
+            .header-menu .right-side {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                width: 100%;
+                padding-top: 6px;
+            }
+            .header-menu .right-side select,
+            .header-menu .right-side .login-btn {
+                width: 100%;
+                min-height: 44px;
+            }
+            .header-menu .right-side select {
+                font-size: 15px;
+            }
+            .header-menu .right-side .login-btn {
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            header {
+                height: 64px;
+                padding: 0 12px;
+            }
+            .logo-area {
+                height: 64px;
+            }
+            .logo-image {
+                width: 200px;
+                height: 58px;
+                max-width: 72vw;
+            }
+            .menu-toggle {
+                font-size: 28px;
+            }
+            .header-menu {
+                top: 64px;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-area">
+        <img src="image.png"
+             class="logo-image"
+             alt="MediGram Logo">
+    </div>
+    <button class="menu-toggle"
+            id="menuToggle"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            onclick="toggleMobileMenu()">
+        ☰
+    </button>
+    <div class="header-menu" id="headerMenu">
+        <nav>
+            <button id="navHome"
+                    onclick="showPage('home')">
+                Home
+            </button>
+            <button id="navMap"
+                    onclick="showPage('mapPage')">
+                Priority Map
+            </button>
+            <button id="navOrg"
+                    onclick="showPage('organization')">
+                Medical Organization
+            </button>
+            <button id="navVillage"
+                    onclick="showPage('village')">
+                Village Coordinator
+            </button>
+        </nav>
+        <div class="right-side">
+            <select id="language" onchange="changeLanguage()">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="te">తెలుగు</option>
+                <option value="bn">বাংলা</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="ur">اردو</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="or">ଓଡ଼ିଆ</option>
+                <option value="ml">മലയാളം</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
+                <option value="as">অসমীয়া</option>
+                <option value="mai">मैथिली</option>
+                <option value="sa">संस्कृतम्</option>
+                <option value="ne">नेपाली</option>
+                <option value="kok">कोंकणी</option>
+                <option value="mni">মণিপুরী</option>
+                <option value="ks">कश्मीरी</option>
+                <option value="sd">سنڌي</option>
+                <option value="doi">डोगरी</option>
+                <option value="sat">Santali</option>
+                <option value="brx">बड़ो</option>
+            </select>
+            <button class="login-btn"
+                    onclick="showPage('organization')">
+                Login
+            </button>
+        </div>
+    </div>
+</header>
+<main>
+<section id="home" class="page active">
+    <div class="hero">
+        <div>
+            <div class="small-title"
+                 data-key="heroSmall">
+                Rural Healthcare Coordination Platform
+            </div>
+            <h1 data-key="heroTitle">
+                Connecting villages with
+                medical organizations.
+            </h1>
+            <p data-key="heroText">
+                MediGram helps identify underserved villages,
+                match healthcare needs with medical organizations,
+                plan medical camps, maintain records and support
+                follow-up after the camp.
+            </p>
+            <div class="buttons">
+                <button class="primary-btn"
+                        onclick="showPage('organization')"
+                        data-key="orgButton">
+                    Medical Organization Dashboard
+                </button>
+                <button class="secondary-btn"
+                        onclick="showPage('village')"
+                        data-key="villageButton">
+                    Village Coordinator Dashboard
+                </button>
+            </div>
+        </div>
+        <div class="match-card">
+            <div class="match-header">
+                <strong data-key="smartMatch">
+                    Smart Outreach Match
+                </strong>
+                <span class="ai-badge">
+                    AI Assisted
+                </span>
+            </div>
+            <p data-key="smartText">
+                Prioritizes villages based on healthcare
+                gaps and connects them with organizations
+                that can provide the required services.
+            </p>
+            <div class="village-match">
+                <div class="village-match-top">
+                    <b>
+                        Rampur Village
+                    </b>
+                    <span class="percentage">
+                        92%
+                    </span>
+                </div>
+                <div class="sub-text">
+                    High need · General + Eye Care
+                </div>
+            </div>
+            <div class="village-match">
+                <div class="village-match-top">
+                    <b>
+                        Chinnapalli
+                    </b>
+                    <span class="percentage">
+                        81%
+                    </span>
+                </div>
+                <div class="sub-text">
+                    Medium need · Maternal Care
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flow">
+        <h2 data-key="flowTitle">
+            How MediGram Works
+        </h2>
+        <div class="flow-container">
+                        <div class="flow-card">
+                <div class="number">
+                    1
+                </div>
+                <h3 data-key="flow1Title">
+                    Village Need
+                </h3>
+                <p data-key="flow1Text">
+                    Village coordinator reports
+                    healthcare requirements.
+                </p>
+            </div>
+            <div class="flow-card">
+                <div class="number">
+                    2
+                </div>
+                <h3 data-key="flow2Title">
+                    Priority Matching
+                </h3>
+                <p data-key="flow2Text">
+                    System identifies villages
+                    requiring urgent outreach.
+                </p>
+            </div>
+            <div class="flow-card">
+                <div class="number">
+                    3
+                </div>
+                <h3 data-key="flow3Title">
+                    Organization Match
+                </h3>
+                <p data-key="flow3Text">
+                    Suitable medical organizations
+                    are connected.
+                </p>
+            </div>
+            <div class="flow-card">
+                <div class="number">
+                    4
+                </div>
+                <h3 data-key="flow4Title">
+                    Camp Planning
+                </h3>
+                <p data-key="flow4Text">
+                    Doctors, volunteers and
+                    services are planned.
+                </p>
+            </div>
+            <div class="flow-card">
+                <div class="number">
+                    5
+                </div>
+                <h3 data-key="flow5Title">
+                    Camp + Follow-up
+                </h3>
+                <p data-key="flow5Text">
+                    Patient records and follow-up
+                    continue after the camp.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="mapPage" class="page">
+    <div class="map-header">
+        <div class="small-title"
+             data-key="mapSmall">
+            HEALTHCARE PRIORITY MAP
+        </div>
+        <h2 data-key="mapTitle">
+            Priority Villages
+        </h2>
+        <p data-key="mapText">
+            View villages based on healthcare needs,
+            previous camp coverage and outreach priority.
+        </p>
+    </div>
+    <div id="map"></div>
+    <div class="map-info">
+        <div class="map-card">
+            <small data-key="highPriority">
+                High Priority Villages
+            </small>
+            <strong>
+                04
+            </strong>
+        </div>
+        <div class="map-card">
+            <small data-key="mediumPriority">
+                Medium Priority Villages
+            </small>
+            <strong>
+                08
+            </strong>
+        </div>
+        <div class="map-card">
+            <small data-key="lowPriority">
+                Low Priority Villages
+            </small>
+            <strong>
+                05
+            </strong>
+        </div>
+    </div>
+</section>
+<section id="organization" class="page">
+    <div class="dashboard-heading">
+        <div>
+            <div class="small-title"
+                 data-key="orgSmall">
+                MEDICAL ORGANIZATION
+            </div>
+            <h2 data-key="orgTitle">
+                Organization Dashboard
+            </h2>
+            <p data-key="orgDescription">
+                Find villages that need healthcare
+                outreach and manage medical camps.
+            </p>
+        </div>
+        <span class="verified"
+              data-key="verified">
+            ✓ Verified Organization
+        </span>
+    </div>
+    <div class="stats">
+        <div class="stat-card">
+            <small data-key="statVillages">
+                Villages needing outreach
+            </small>
+            <strong>
+                12
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="statCamps">
+                Camps this month
+            </small>
+            <strong>
+                08
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="statPatients">
+                Patients served
+            </small>
+            <strong>
+                436
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="statFollow">
+                Follow-ups pending
+            </small>
+            <strong>
+                27
+            </strong>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3 data-key="priorityVillages">
+                Priority Villages
+            </h3>
+            <div class="village-row">
+                <div>
+                    <div class="village-name">
+                        Rampur Village
+                    </div>
+                    <div class="village-info">
+                        General Care · Eye Care ·
+                        Last camp: 7 months ago
+                    </div>
+                </div>
+                <span class="priority high">
+                    92% HIGH
+                </span>
+            </div>
+            <div class="village-row">
+                <div>
+                    <div class="village-name">
+                        Chinnapalli
+                    </div>
+                    <div class="village-info">
+                        Maternal Care · General Care ·
+                        Last camp: 5 months ago
+                    </div>
+                </div>
+                <span class="priority medium">
+                    81% MEDIUM
+                </span>
+            </div>
+            <div class="village-row">
+                <div>
+                    <div class="village-name">
+                        Lakshmipuram
+                    </div>
+                    <div class="village-info">
+                        Dental Care · Screening ·
+                        No recent camp
+                    </div>
+                </div>
+                <span class="priority medium">
+                    76% MEDIUM
+                </span>
+            </div>
+            <div class="village-row">
+                <div>
+                    <div class="village-name">
+                        Kothuru
+                    </div>
+                    <div class="village-info">
+                        General Care ·
+                        Last camp: 2 months ago
+                    </div>
+                </div>
+                <span class="priority low">
+                    44% LOW
+                </span>
+            </div>
+        </div>
+        <div class="dashboard-card">
+            <h3 data-key="quickActions">
+                Quick Actions
+            </h3>
+            <div class="action-grid">
+                <button class="action"
+                        onclick="showMessage('Camp scheduling opened')">
+                    <b data-key="scheduleCamp">
+                        Schedule a Camp
+                    </b>
+                    <span data-key="scheduleText">
+                        Choose village, date and services.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Capability matching opened')">
+                    <b data-key="matchCapabilities">
+                        Match Capabilities
+                    </b>
+                    <span data-key="matchText">
+                        Match your team to village needs.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Team planner opened')">
+                    <b data-key="planTeam">
+                        Plan Doctors & Volunteers
+                    </b>
+                    <span data-key="planText">
+                        Assign people and camp capacity.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Records opened')">
+                    <b data-key="viewRecords">
+                        View Previous Records
+                    </b>
+                    <span data-key="recordsText">
+                        Review camp and patient history.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Follow-up tracker opened')">
+                    <b data-key="trackFollow">
+                        Track Follow-ups
+                    </b>
+                    <span data-key="trackText">
+                        See pending follow-up tasks.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Notifications opened')">
+                    <b data-key="notifications">
+                        Notifications
+                    </b>
+                    <span data-key="notificationText">
+                        Village requests and updates.
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="village" class="page">
+    <div class="dashboard-heading">
+        <div>
+            <div class="small-title"
+                 data-key="villageSmall">
+                VILLAGE COORDINATOR
+            </div>
+            <h2 data-key="villageTitle">
+                Village Coordinator Dashboard
+            </h2>
+            <p data-key="villageDescription">
+                Coordinate healthcare needs,
+                medical camps and follow-up.
+            </p>
+        </div>
+        <span class="verified">
+            Rampur Village
+        </span>
+    </div>
+    <div class="stats">
+        <div class="stat-card">
+            <small data-key="nextCamp">
+                Next Camp
+            </small>
+            <strong>
+                18 Oct
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="registeredPatients">
+                Patients Registered
+            </small>
+            <strong>
+                64
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="pendingFollowups">
+                Follow-ups Pending
+            </small>
+            <strong>
+                11
+            </strong>
+        </div>
+        <div class="stat-card">
+            <small data-key="openRequests">
+                Open Requests
+            </small>
+            <strong>
+                03
+            </strong>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3 data-key="upcomingCamp">
+                Upcoming Medical Camp
+            </h3>
+            <div class="camp-box">
+                <b>
+                    General + Eye Screening Camp
+                </b>
+                <p>
+                    18 October · 9:00 AM – 4:00 PM
+                </p>
+                <p>
+                    Community Health Centre
+                </p>
+                <p>
+                    4 Doctors · 6 Volunteers
+                </p>
+            </div>
+            <div class="action-grid">
+                <button class="action"
+                        onclick="showMessage('Patient registration opened')">
+                    <b data-key="registerPatients">
+                        Register Patients
+                                            </b>
+                    <span data-key="registerText">
+                        Prepare the expected patient list.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Camp information opened')">
+                    <b data-key="campInformation">
+                        Camp Information
+                    </b>
+                    <span data-key="campInfoText">
+                        View services, team and schedule.
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="dashboard-card">
+            <h3 data-key="villageActions">
+                Village Actions
+            </h3>
+            <div class="action-grid">
+                <button class="action"
+                        onclick="showMessage('Medical camp request created')">
+                    <b data-key="requestCamp">
+                        Request Medical Camp
+                    </b>
+                    <span data-key="requestCampText">
+                        Tell organizations what your village needs.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Patient records opened')">
+                    <b data-key="patientRecords">
+                        Patient & Camp Records
+                    </b>
+                    <span data-key="patientRecordsText">
+                        View previous healthcare activity.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Announcements opened')">
+                    <b data-key="announcements">
+                        Announcements
+                    </b>
+                    <span data-key="announcementsText">
+                        Important camp and health updates.
+                    </span>
+                </button>
+                <button class="action"
+                        onclick="showMessage('Emergency support opened')">
+                    <b data-key="emergencySupport">
+                        Emergency Support
+                    </b>
+                    <span data-key="emergencyText">
+                        Request urgent assistance.
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
+<footer>
+    MediGram · Connecting Villages with Medical Organizations
+</footer>
+<div id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+<script>
+function toggleMobileMenu() {
+    const menu = document.getElementById("headerMenu");
+    const button = document.getElementById("menuToggle");
+    if (!menu || !button) return;
+    const isOpen = menu.classList.toggle("mobile-open");
+    button.innerText = isOpen ? "✕" : "☰";
+    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    button.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+}
+function closeMobileMenu() {
+    const menu = document.getElementById("headerMenu");
+    const button = document.getElementById("menuToggle");
+    if (!menu || !button) return;
+    menu.classList.remove("mobile-open");
+    button.innerText = "☰";
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", "Open menu");
+}
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+function showPage(pageName) {
+    closeMobileMenu();
+    // Hide all pages
+    let pages =
+        document.querySelectorAll(".page");
+    pages.forEach(function(page) {
+        page.classList.remove("active");
+    });
+    // Show selected page
+    document
+        .getElementById(pageName)
+        .classList.add("active");
+    // Remove active navigation
+    let navButtons =
+        document.querySelectorAll("nav button");
+    navButtons.forEach(function(button) {
+        button.classList.remove("active");
+    });
+    // Set active navigation
+    if(pageName === "home") {
+        document
+            .getElementById("navHome")
+            .classList.add("active");
+    }
+    if(pageName === "mapPage") {
+        document
+            .getElementById("navMap")
+            .classList.add("active");
+        // Fix Leaflet map size
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 200);
+    }
+    if(pageName === "organization") {
+        document
+            .getElementById("navOrg")
+            .classList.add("active");
+    }
+    if(pageName === "village") {
+        document
+            .getElementById("navVillage")
+            .classList.add("active");
+    }
+    // Scroll to top
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+/* =====================================================
+   TOAST MESSAGE
+===================================================== */
+function showMessage(message) {
+    let toast =
+        document.getElementById("toast");
+    toast.innerText = message;
+    toast.style.display = "block";
+    setTimeout(function() {
+        toast.style.display = "none";
+    }, 2000);
+}
+/* =====================================================
+   PRIORITY MAP
+===================================================== */
+/*
+    Center of Andhra Pradesh
+*/
+let map = L.map("map").setView(
+    [15.9129, 79.7400],
+    7
+);
+/*
+    OpenStreetMap
+*/
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution:
+        '&copy; OpenStreetMap contributors'
+    }
+).addTo(map);
+/* =====================================================
+   VILLAGE DATA
+===================================================== */
+let villages = [
+    {
+        name: "Rampur Village",
+        lat: 15.4900,
+        lng: 78.4800,
+        priority: "HIGH",
+        score: "92%",
+        need:
+        "General Care + Eye Care"
+    },
+    {
+        name: "Chinnapalli",
+        lat: 14.6800,
+        lng: 77.6000,
+        priority: "MEDIUM",
+        score: "81%",
+        need:
+        "Maternal Care + General Care"
+    },
+    {
+        name: "Lakshmipuram",
+        lat: 16.2000,
+        lng: 80.4500,
+        priority: "MEDIUM",
+        score: "76%",
+        need:
+        "Dental Care + Screening"
+    },
+    {
+        name: "Kothuru",
+        lat: 17.0000,
+        lng: 81.8000,
+        priority: "LOW",
+        score: "44%",
+        need:
+        "General Care"
+    }
+];
+/* =====================================================
+   CREATE MARKERS
+===================================================== */
+villages.forEach(function(village) {
+    let color;
+    if(village.priority === "HIGH") {
+        color = "red";
+    }
+    else if(village.priority === "MEDIUM") {
+        color = "orange";
+    }
+    else {
+        color = "green";
+    }
+    let marker =
+        L.circleMarker(
+            [village.lat, village.lng],
+            {
+                radius: 10,
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.75
+            }
+        ).addTo(map);
+    marker.bindPopup(`
+        <b>${village.name}</b>
+        <br><br>
+        <b>Priority:</b>
+        ${village.priority}
+        <br>
+        <b>Score:</b>
+        ${village.score}
+        <br>
+        <b>Healthcare Need:</b>
+        ${village.need}
+    `);
+});
+/* =====================================================
+   LANGUAGE DATA
+===================================================== */
+const translations = {
+/* =====================================================
+   ENGLISH
+===================================================== */
+en: {
+    heroSmall:
+    "Rural Healthcare Coordination Platform",
+    heroTitle:
+    "Connecting villages with medical organizations.",
+    heroText:
+    "MediGram helps identify underserved villages, match healthcare needs with medical organizations, plan medical camps, maintain records and support follow-up after the camp.",
+    orgButton:
+    "Medical Organization Dashboard",
+    villageButton:
+    "Village Coordinator Dashboard",
+    smartMatch:
+    "Smart Outreach Match",
+    smartText:
+    "Prioritizes villages based on healthcare gaps and connects them with organizations that can provide the required services.",
+    flowTitle:
+    "How MediGram Works",
+    flow1Title:
+    "Village Need",
+    flow1Text:
+    "Village coordinator reports healthcare requirements.",
+    flow2Title:
+    "Priority Matching",
+    flow2Text:
+    "System identifies villages requiring urgent outreach.",
+    flow3Title:
+    "Organization Match",
+    flow3Text:
+    "Suitable medical organizations are connected.",
+    flow4Title:
+    "Camp Planning",
+    flow4Text:
+    "Doctors, volunteers and services are planned.",
+    flow5Title:
+    "Camp + Follow-up",
+    flow5Text:
+    "Patient records and follow-up continue after the camp.",
+    mapSmall:
+    "HEALTHCARE PRIORITY MAP",
+    mapTitle:
+    "Priority Villages",
+    mapText:
+    "View villages based on healthcare needs, previous camp coverage and outreach priority.",
+    highPriority:
+    "High Priority Villages",
+    mediumPriority:
+    "Medium Priority Villages",
+    lowPriority:
+    "Low Priority Villages",
+    orgSmall:
+    "MEDICAL ORGANIZATION",
+    orgTitle:
+    "Organization Dashboard",
+    orgDescription:
+    "Find villages that need healthcare outreach and manage medical camps.",
+    verified:
+    "✓ Verified Organization",
+    statVillages:
+    "Villages needing outreach",
+    statCamps:
+    "Camps this month",
+    statPatients:
+    "Patients served",
+    statFollow:
+    "Follow-ups pending",
+    priorityVillages:
+    "Priority Villages",
+    quickActions:
+    "Quick Actions",
+    scheduleCamp:
+    "Schedule a Camp",
+    scheduleText:
+    "Choose village, date and services.",
+    matchCapabilities:
+    "Match Capabilities",
+    matchText:
+    "Match your team to village needs.",
+    planTeam:
+    "Plan Doctors & Volunteers",
+    planText:
+    "Assign people and camp capacity.",
+    viewRecords:
+    "View Previous Records",
+    recordsText:
+    "Review camp and patient history.",
+    trackFollow:
+    "Track Follow-ups",
+    trackText:
+    "See pending follow-up tasks.",
+    notifications:
+    "Notifications",
+    notificationText:
+    "Village requests and updates.",
+    villageSmall:
+    "VILLAGE COORDINATOR",
+    villageTitle:
+    "Village Coordinator Dashboard",
+    villageDescription:
+    "Coordinate healthcare needs, medical camps and follow-up.",
+    nextCamp:
+    "Next Camp",
+    registeredPatients:
+    "Patients Registered",
+    pendingFollowups:
+    "Follow-ups Pending",
+        openRequests:
+    "Open Requests",
+    upcomingCamp:
+    "Upcoming Medical Camp",
+    registerPatients:
+    "Register Patients",
+    registerText:
+    "Prepare the expected patient list.",
+    campInformation:
+    "Camp Information",
+    campInfoText:
+    "View services, team and schedule.",
+    villageActions:
+    "Village Actions",
+    requestCamp:
+    "Request Medical Camp",
+    requestCampText:
+    "Tell organizations what your village needs.",
+    patientRecords:
+    "Patient & Camp Records",
+    patientRecordsText:
+    "View previous healthcare activity.",
+    announcements:
+    "Announcements",
+    announcementsText:
+    "Important camp and health updates.",
+    emergencySupport:
+    "Emergency Support",
+    emergencyText:
+    "Request urgent assistance."
+},
+/* =====================================================
+   TELUGU
+===================================================== */
+te: {
+    heroSmall:
+    "గ్రామీణ ఆరోగ్య సమన్వయ వేదిక",
+    heroTitle:
+    "గ్రామాలను వైద్య సంస్థలతో అనుసంధానం చేయడం.",
+    heroText:
+    "MediGram అవసరమైన గ్రామాలను గుర్తించి, ఆరోగ్య అవసరాలను తగిన వైద్య సంస్థలతో కలిపి, వైద్య శిబిరాలను నిర్వహించి, రికార్డులు మరియు ఫాలో-అప్‌ను నిర్వహించడంలో సహాయపడుతుంది.",
+    orgButton:
+    "వైద్య సంస్థ డాష్‌బోర్డ్",
+    villageButton:
+    "గ్రామ సమన్వయకర్త డాష్‌బోర్డ్",
+    smartMatch:
+    "స్మార్ట్ అవుట్‌రీచ్ మ్యాచ్",
+    smartText:
+    "ఆరోగ్య అవసరాల ఆధారంగా గ్రామాలకు ప్రాధాన్యత ఇచ్చి, అవసరమైన సేవలను అందించగల సంస్థలతో అనుసంధానం చేస్తుంది.",
+    flowTitle:
+    "MediGram ఎలా పనిచేస్తుంది",
+    flow1Title:
+    "గ్రామ అవసరం",
+    flow1Text:
+    "సమన్వయకర్త ఆరోగ్య అవసరాలను నమోదు చేస్తారు.",
+    flow2Title:
+    "ప్రాధాన్యత మ్యాచ్",
+    flow2Text:
+    "అవసరమైన గ్రామాలను వ్యవస్థ గుర్తిస్తుంది.",
+    flow3Title:
+    "సంస్థ మ్యాచ్",
+    flow3Text:
+    "తగిన వైద్య సంస్థలు అనుసంధానించబడతాయి.",
+    flow4Title:
+    "శిబిర ప్రణాళిక",
+    flow4Text:
+    "వైద్యులు మరియు వాలంటీర్లను ప్లాన్ చేస్తారు.",
+    flow5Title:
+    "శిబిరం + ఫాలో-అప్",
+    flow5Text:
+    "శిబిరం తర్వాత రికార్డులు మరియు ఫాలో-అప్ కొనసాగుతాయి.",
+    mapSmall:
+    "ఆరోగ్య ప్రాధాన్యత మ్యాప్",
+    mapTitle:
+    "ప్రాధాన్యత గ్రామాలు",
+    mapText:
+    "ఆరోగ్య అవసరాలు మరియు గత శిబిరాల ఆధారంగా గ్రామాలను చూడండి.",
+    highPriority:
+    "అధిక ప్రాధాన్యత గ్రామాలు",
+    mediumPriority:
+    "మధ్యస్థ ప్రాధాన్యత గ్రామాలు",
+    lowPriority:
+    "తక్కువ ప్రాధాన్యత గ్రామాలు",
+    orgSmall:
+    "వైద్య సంస్థ",
+    orgTitle:
+    "సంస్థ డాష్‌బోర్డ్",
+    orgDescription:
+    "ఆరోగ్య సేవలు అవసరమైన గ్రామాలను కనుగొని వైద్య శిబిరాలను నిర్వహించండి.",
+    verified:
+    "✓ ధృవీకరించిన సంస్థ",
+    statVillages:
+    "అవుట్‌రీచ్ అవసరమైన గ్రామాలు",
+    statCamps:
+    "ఈ నెల శిబిరాలు",
+    statPatients:
+    "సేవ పొందిన రోగులు",
+    statFollow:
+    "పెండింగ్ ఫాలో-అప్స్",
+    priorityVillages:
+    "ప్రాధాన్యత గ్రామాలు",
+    quickActions:
+    "త్వరిత చర్యలు",
+    scheduleCamp:
+    "శిబిరాన్ని షెడ్యూల్ చేయండి",
+    scheduleText:
+    "గ్రామం, తేదీ మరియు సేవలను ఎంచుకోండి.",
+    matchCapabilities:
+    "సామర్థ్యాలను మ్యాచ్ చేయండి",
+    matchText:
+    "మీ బృందాన్ని గ్రామ అవసరాలతో సరిపోల్చండి.",
+    planTeam:
+    "వైద్యులు & వాలంటీర్లను ప్లాన్ చేయండి",
+    planText:
+    "వ్యక్తులు మరియు శిబిర సామర్థ్యాన్ని కేటాయించండి.",
+    viewRecords:
+    "గత రికార్డులను చూడండి",
+    recordsText:
+    "శిబిరం మరియు రోగి చరిత్రను చూడండి.",
+    trackFollow:
+    "ఫాలో-అప్స్ ట్రాక్ చేయండి",
+    trackText:
+    "పెండింగ్ ఫాలో-అప్ పనులను చూడండి.",
+    notifications:
+    "నోటిఫికేషన్లు",
+    notificationText:
+    "గ్రామ అభ్యర్థనలు మరియు అప్‌డేట్లు.",
+    villageSmall:
+    "గ్రామ సమన్వయకర్త",
+    villageTitle:
+    "గ్రామ సమన్వయకర్త డాష్‌బోర్డ్",
+    villageDescription:
+    "మీ గ్రామ ఆరోగ్య అవసరాలు, శిబిరాలు మరియు ఫాలో-అప్‌ను సమన్వయం చేయండి.",
+    nextCamp:
+    "తదుపరి శిబిరం",
+    registeredPatients:
+    "నమోదైన రోగులు",
+    pendingFollowups:
+    "పెండింగ్ ఫాలో-అప్స్",
+    openRequests:
+    "ఓపెన్ అభ్యర్థనలు",
+    upcomingCamp:
+    "తదుపరి వైద్య శిబిరం",
+    registerPatients:
+    "రోగులను నమోదు చేయండి",
+    registerText:
+    "అంచనా రోగుల జాబితాను సిద్ధం చేయండి.",
+    campInformation:
+    "శిబిర సమాచారం",
+    campInfoText:
+    "సేవలు, బృందం మరియు షెడ్యూల్ చూడండి.",
+    villageActions:
+    "గ్రామ చర్యలు",
+    requestCamp:
+    "వైద్య శిబిరాన్ని అభ్యర్థించండి",
+    requestCampText:
+    "మీ గ్రామానికి అవసరమైన సేవలను తెలియజేయండి.",
+    patientRecords:
+    "రోగి & శిబిర రికార్డులు",
+    patientRecordsText:
+    "గత ఆరోగ్య కార్యకలాపాలను చూడండి.",
+    announcements:
+    "ప్రకటనలు",
+    announcementsText:
+    "ముఖ్యమైన శిబిర మరియు ఆరోగ్య అప్‌డేట్లు.",
+    emergencySupport:
+    "అత్యవసర సహాయం",
+    emergencyText:
+    "అత్యవసర సహాయాన్ని త్వరగా అభ్యర్థించండి."
+},
+/* =====================================================
+   HINDI
+===================================================== */
+hi: {
+    heroSmall:
+    "ग्रामीण स्वास्थ्य समन्वय मंच",
+    heroTitle:
+    "गाँवों को चिकित्सा संगठनों से जोड़ना।",
+    heroText:
+    "MediGram जरूरतमंद गाँवों की पहचान करता है, स्वास्थ्य जरूरतों को उपयुक्त चिकित्सा संगठनों से जोड़ता है, मेडिकल कैंप की योजना बनाने और रिकॉर्ड व फॉलो-अप संभालने में मदद करता है।",
+    orgButton:
+    "चिकित्सा संगठन डैशबोर्ड",
+    villageButton:
+    "ग्राम समन्वयक डैशबोर्ड",
+    smartMatch:
+    "स्मार्ट आउटरीच मैच",
+    smartText:
+    "स्वास्थ्य जरूरतों के आधार पर गाँवों को प्राथमिकता देता है और उन्हें उपयुक्त चिकित्सा संगठनों से जोड़ता है।",
+    flowTitle:
+    "MediGram कैसे काम करता है",
+    flow1Title:
+    "गाँव की जरूरत",
+    flow1Text:
+    "समन्वयक स्वास्थ्य जरूरतों की जानकारी देता है।",
+    flow2Title:
+    "प्राथमिकता मैच",
+    flow2Text:
+    "सिस्टम जरूरत वाले गाँवों की पहचान करता है।",
+    flow3Title:
+    "संगठन मैच",
+    flow3Text:
+    "उपयुक्त चिकित्सा संगठन जुड़ते हैं।",
+    flow4Title:
+    "कैंप योजना",
+    flow4Text:
+    "डॉक्टर और स्वयंसेवकों की योजना बनाई जाती है।",
+    flow5Title:
+    "कैंप + फॉलो-अप",
+    flow5Text:
+    "कैंप के बाद रिकॉर्ड और फॉलो-अप जारी रहता है।",
+    mapSmall:
+    "स्वास्थ्य प्राथमिकता मानचित्र",
+    mapTitle:
+    "प्राथमिकता वाले गाँव",
+    mapText:
+    "स्वास्थ्य जरूरतों और पिछले कैंप के आधार पर गाँवों को देखें।",
+    highPriority:
+    "उच्च प्राथमिकता वाले गाँव",
+    mediumPriority:
+    "मध्यम प्राथमिकता वाले गाँव",
+    lowPriority:
+    "कम प्राथमिकता वाले गाँव",
+    orgSmall:
+    "चिकित्सा संगठन",
+    orgTitle:
+    "संगठन डैशबोर्ड",
+    orgDescription:
+    "स्वास्थ्य सेवाओं की जरूरत वाले गाँव खोजें और मेडिकल कैंप प्रबंधित करें।",
+    verified:
+    "✓ सत्यापित संगठन",
+    statVillages:
+    "आउटरीच की जरूरत वाले गाँव",
+    statCamps:
+    "इस महीने के कैंप",
+    statPatients:
+    "सेवा पाए मरीज",
+    statFollow:
+    "लंबित फॉलो-अप",
+    priorityVillages:
+    "प्राथमिकता वाले गाँव",
+    quickActions:
+    "त्वरित कार्य",
+    scheduleCamp:
+    "कैंप शेड्यूल करें",
+    scheduleText:
+    "गाँव, तारीख और सेवाएँ चुनें।",
+    matchCapabilities:
+    "क्षमताएँ मैच करें",
+    matchText:
+    "अपनी टीम को गाँव की जरूरतों से मिलाएँ।",
+    planTeam:
+    "डॉक्टर और स्वयंसेवक योजना",
+    planText:
+    "लोगों और कैंप क्षमता को निर्धारित करें।",
+    viewRecords:
+    "पिछले रिकॉर्ड देखें",
+    recordsText:
+    "कैंप और मरीजों का इतिहास देखें।",
+    trackFollow:
+    "फॉलो-अप ट्रैक करें",
+    trackText:
+    "लंबित फॉलो-अप कार्य देखें।",
+    notifications:
+    "सूचनाएँ",
+    notificationText:
+    "गाँव के अनुरोध और अपडेट।",
+    villageSmall:
+    "ग्राम समन्वयक",
+    villageTitle:
+    "ग्राम समन्वयक डैशबोर्ड",
+    villageDescription:
+    "अपने गाँव की स्वास्थ्य जरूरतों, कैंप और फॉलो-अप का समन्वय करें।",
+    nextCamp:
+    "अगला कैंप",
+    registeredPatients:
+    "पंजीकृत मरीज",
+    pendingFollowups:
+    "लंबित फॉलो-अप",
+    openRequests:
+    "खुले अनुरोध",
+    upcomingCamp:
+    "आगामी मेडिकल कैंप",
+    registerPatients:
+    "मरीज पंजीकृत करें",
+    registerText:
+    "अपेक्षित मरीजों की सूची तैयार करें।",
+    campInformation:
+    "कैंप जानकारी",
+    campInfoText:
+    "सेवाएँ, टीम और शेड्यूल देखें।",
+    villageActions:
+    "गाँव के कार्य",
+    requestCamp:
+    "मेडिकल कैंप का अनुरोध",
+    requestCampText:
+    "संगठनों को गाँव की जरूरतें बताएँ।",
+    patientRecords:
+    "मरीज और कैंप रिकॉर्ड",
+    patientRecordsText:
+    "पिछली स्वास्थ्य गतिविधि देखें।",
+    announcements:
+    "घोषणाएँ",
+    announcementsText:
+    "महत्वपूर्ण कैंप और स्वास्थ्य अपडेट।",
+    emergencySupport:
+    "आपातकालीन सहायता",
+    emergencyText:
+    "तुरंत सहायता का अनुरोध करें।"
+}
+};
+/* =====================================================
+   LANGUAGE CHANGE
+===================================================== */
+function changeLanguage() {
+    let language =
+        document.getElementById("language").value;
+    /*
+        Only these three languages
+        are implemented in prototype.
+    */
+    if(
+        language !== "en" &&
+        language !== "te" &&
+        language !== "hi"
+    ) {
+        showMessage(
+            "Translation for this language will be added later."
+        );
+        /*
+            Keep English as website language
+            for unsupported languages.
+        */
+        document
+            .getElementById("language")
+            .value = "en";
+        language = "en";
+    }
+    let selected =
+        translations[language];
+    /*
+        Find every element with
+        data-key
+    */
+    let elements =
+        document.querySelectorAll("[data-key]");
+    elements.forEach(function(element) {
+        let key =
+            element.getAttribute("data-key");
+        if(selected[key]) {
+            element.innerText =
+                selected[key];
+        }
+    });
+}
+/* =====================================================
+   START WITH ENGLISH
+===================================================== */
+changeLanguage();
+</script>
+</body>
+</html>
